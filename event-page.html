@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Nirvana · Tunai Events</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { background: #000; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      background: transparent;
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════════════
+       FIXED BLURRED BACKGROUND
+       — matches the Nirvana / Nevermind poster palette
+    ═══════════════════════════════════════════ */
+    .bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 100% 55% at 50%  8%,  rgba(22,  60, 155, 0.98) 0%, transparent 70%),
+        radial-gradient(ellipse  65% 70% at 12%  58%, rgba(6,   28,  95, 0.85) 0%, transparent 65%),
+        radial-gradient(ellipse  55% 55% at 82%  52%, rgba(28,  72, 175, 0.65) 0%, transparent 68%),
+        radial-gradient(ellipse  45% 45% at 48%  88%, rgba(4,   14,  48, 0.95) 0%, transparent 65%),
+        linear-gradient(168deg, #020812 0%, #091c44 50%, #030a1c 100%);
+      filter: blur(55px) saturate(1.5) brightness(0.70);
+      transform: scale(1.25);
+    }
+
+    /* ═══════════════════════════════════════════
+       PHONE SHELL
+    ═══════════════════════════════════════════ */
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 390px;
+      min-height: 100vh;
+      margin: 0 auto;
+      /* no overflow:hidden — allows the page to scroll normally */
+    }
+
+    /* ═══════════════════════════════════════════
+       STATUS BAR
+    ═══════════════════════════════════════════ */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px 8px;
+      color: rgba(255,255,255,0.88);
+    }
+    .status-time {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ═══════════════════════════════════════════
+       POSTER HERO
+    ═══════════════════════════════════════════ */
+    .poster-wrap {
+      position: relative;
+      width: calc(100% - 20px);
+      height: 285px;
+      overflow: hidden;
+      margin: 4px 10px 0;
+      border-radius: 18px;
+    }
+
+    .poster {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      /* deep ocean Nevermind palette */
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.72) 100%),
+        radial-gradient(ellipse 85% 75% at 50% 58%, rgba(24, 75, 195, 0.80) 0%, transparent 72%),
+        radial-gradient(circle at 20% 82%, rgba(6,  36, 110, 0.75) 0%, transparent 50%),
+        radial-gradient(circle at 80% 22%, rgba(50, 110, 220, 0.48) 0%, transparent 48%),
+        radial-gradient(circle at 55% 45%, rgba(14,  50, 135, 0.65) 0%, transparent 75%),
+        linear-gradient(148deg, #03101f 0%, #0d2c64 42%, #04122a 100%);
+    }
+
+    /* Subtle scan lines */
+    .poster::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        180deg,
+        transparent 0px, transparent 3px,
+        rgba(60,120,240,0.035) 4px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Large bubble ring – Nevermind aesthetic */
+    .poster-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -62%);
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      border: 1px solid rgba(100,165,255,0.16);
+      box-shadow:
+        0 0 60px rgba(60,120,255,0.10) inset,
+        0 0 40px rgba(60,120,255,0.06),
+        0 0 0 30px rgba(60,120,255,0.03);
+      pointer-events: none;
+    }
+
+    /* Smaller accent bubble */
+    .poster-ring-sm {
+      position: absolute;
+      top: 22%;
+      right: 18%;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 1px solid rgba(100,165,255,0.12);
+      box-shadow: 0 0 20px rgba(60,120,255,0.06) inset;
+      pointer-events: none;
+    }
+
+    /* Third tiny bubble */
+    .poster-ring-xs {
+      position: absolute;
+      bottom: 28%;
+      left: 16%;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid rgba(100,165,255,0.10);
+      pointer-events: none;
+    }
+
+    /* Radiating lines from center (like reference poster) */
+    .poster-rays {
+      position: absolute;
+      inset: 0;
+      background:
+        conic-gradient(
+          from 0deg at 50% 42%,
+          transparent 0deg,
+          rgba(50,110,230,0.04) 10deg,
+          transparent 20deg,
+          rgba(50,110,230,0.04) 30deg,
+          transparent 40deg,
+          rgba(50,110,230,0.04) 50deg,
+          transparent 60deg,
+          rgba(50,110,230,0.04) 70deg,
+          transparent 80deg,
+          rgba(50,110,230,0.04) 90deg,
+          transparent 100deg,
+          rgba(50,110,230,0.04) 110deg,
+          transparent 120deg,
+          rgba(50,110,230,0.04) 130deg,
+          transparent 140deg,
+          rgba(50,110,230,0.04) 150deg,
+          transparent 160deg,
+          rgba(50,110,230,0.04) 170deg,
+          transparent 180deg,
+          rgba(50,110,230,0.04) 190deg,
+          transparent 200deg,
+          rgba(50,110,230,0.04) 210deg,
+          transparent 220deg,
+          rgba(50,110,230,0.04) 230deg,
+          transparent 240deg,
+          rgba(50,110,230,0.04) 250deg,
+          transparent 260deg,
+          rgba(50,110,230,0.04) 270deg,
+          transparent 280deg,
+          rgba(50,110,230,0.04) 290deg,
+          transparent 300deg,
+          rgba(50,110,230,0.04) 310deg,
+          transparent 320deg,
+          rgba(50,110,230,0.04) 330deg,
+          transparent 340deg,
+          rgba(50,110,230,0.04) 350deg,
+          transparent 360deg
+        );
+      pointer-events: none;
+    }
+
+    /* Poster text */
+    .poster-body {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+      user-select: none;
+    }
+
+    .poster-eyebrow {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: rgba(255,255,255,0.40);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .poster-band {
+      font-size: 56px;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: -3px;
+      line-height: 0.88;
+      color: rgba(255,255,255,0.98);
+      text-transform: uppercase;
+      text-shadow:
+        0 0 20px rgba(100,165,255,0.90),
+        0 0 50px rgba(60,120,240,0.60),
+        0 0 100px rgba(30, 80,210,0.40),
+        0 2px 0 rgba(0,0,0,0.4);
+    }
+
+    .poster-divider {
+      width: 32px;
+      height: 1px;
+      background: rgba(255,255,255,0.25);
+      margin: 10px auto 8px;
+    }
+
+    .poster-tour {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 4.5px;
+      color: rgba(255,255,255,0.48);
+      text-transform: uppercase;
+    }
+
+    .poster-venue {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.28);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* Change Poster button */
+    .change-poster-btn {
+      position: absolute;
+      bottom: 13px;
+      right: 13px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.13);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.20);
+      border-radius: 20px;
+      padding: 7px 13px 7px 10px;
+      color: rgba(255,255,255,0.90);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      z-index: 3;
+      letter-spacing: -0.1px;
+    }
+
+    /* ═══════════════════════════════════════════
+       CONTENT AREA
+    ═══════════════════════════════════════════ */
+    .content {
+      padding: 0 14px 110px;
+    }
+
+    /* ═══════════════════════════════════════════
+       CUSTOMISE THEME ROW
+    ═══════════════════════════════════════════ */
+    .theme-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 0 10px;
+    }
+
+    .theme-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 22px;
+      padding: 10px 16px;
+      color: rgba(255,255,255,0.78);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: -0.1px;
+    }
+
+    .shuffle-btn {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* ═══════════════════════════════════════════
+       EVENT TITLE
+    ═══════════════════════════════════════════ */
+    h1.event-title {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.9px;
+      line-height: 1.07;
+      color: rgba(255,255,255,0.96);
+      margin-bottom: 14px;
+    }
+
+    /* ═══════════════════════════════════════════
+       ADD FEATURE PILL
+    ═══════════════════════════════════════════ */
+    .add-feature-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 6px 13px;
+      color: rgba(255,255,255,0.58);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 18px;
+      letter-spacing: -0.1px;
+    }
+
+    /* ═══════════════════════════════════════════
+       TIMEZONE BADGE
+    ═══════════════════════════════════════════ */
+    .tz-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 20px;
+      padding: 5px 12px;
+      color: rgba(255,255,255,0.52);
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      letter-spacing: -0.1px;
+    }
+
+    /* ═══════════════════════════════════════════
+       DATE CARD
+       Layout matches screenshot:
+       [ Start  |  End  ] [toggle]
+       [ time & date  |  time & date ]
+    ═══════════════════════════════════════════ */
+    .date-card {
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px;
+      padding: 14px 15px;
+      margin-bottom: 10px;
+    }
+
+    .date-row {
+      display: flex;
+      align-items: center;
+    }
+
+    .date-col { flex: 1; }
+
+    .date-col-label {
+      font-size: 10.5px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.40);
+      text-transform: capitalize;
+      letter-spacing: 0px;
+      margin-bottom: 3px;
+    }
+
+    .date-col-time {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.90);
+      letter-spacing: -0.3px;
+    }
+
+    .date-col-day {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.90);
+      letter-spacing: -0.3px;
+    }
+
+    .date-col-value {
+      display: flex;
+      gap: 5px;
+      align-items: baseline;
+    }
+
+    .date-sep {
+      width: 1px;
+      height: 38px;
+      background: rgba(255,255,255,0.09);
+      margin: 0 15px;
+      flex-shrink: 0;
+    }
+
+    .date-toggle-wrap {
+      flex-shrink: 0;
+      margin-left: 14px;
+    }
+
+    /* ═══════════════════════════════════════════
+       TOGGLE SWITCH
+    ═══════════════════════════════════════════ */
+    .toggle {
+      width: 44px;
+      height: 26px;
+      border-radius: 13px;
+      background: rgba(255,255,255,0.93);
+      position: relative;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: #060e22;
+      border-radius: 50%;
+      top: 2px;
+      right: 2px;
+      transition: right 0.2s;
+    }
+    .toggle.off {
+      background: rgba(255,255,255,0.15);
+    }
+    .toggle.off::after {
+      right: auto;
+      left: 2px;
+      background: rgba(255,255,255,0.55);
+    }
+
+    /* ═══════════════════════════════════════════
+       IN PERSON / VIRTUAL
+    ═══════════════════════════════════════════ */
+    .type-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .type-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 12px;
+      padding: 12px 8px;
+      color: rgba(255,255,255,0.60);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: -0.1px;
+    }
+
+    .type-btn.active {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.20);
+      color: rgba(255,255,255,0.95);
+    }
+
+    /* ═══════════════════════════════════════════
+       GLASS CARD (rows)
+    ═══════════════════════════════════════════ */
+    .rows-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .section-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+    }
+    .section-row:last-child { border-bottom: none; }
+
+    .row-icon {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.065);
+      border-radius: 8px;
+    }
+
+    .row-label {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.80);
+      letter-spacing: -0.2px;
+    }
+
+    .pill-tag {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.52);
+      letter-spacing: -0.1px;
+    }
+
+    .capacity-val {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: rgba(255,255,255,0.40);
+      font-size: 13px;
+      letter-spacing: -0.1px;
+    }
+
+    /* ═══════════════════════════════════════════
+       ADDITIONAL FEATURES
+    ═══════════════════════════════════════════ */
+    .additional-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .additional-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .additional-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.80);
+      letter-spacing: -0.2px;
+    }
+
+    .additional-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.36);
+      margin-top: 2px;
+      letter-spacing: -0.1px;
+    }
+
+    /* ═══════════════════════════════════════════
+       FIXED BOTTOM BAR
+    ═══════════════════════════════════════════ */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 390px;
+      z-index: 200;
+      display: flex;
+      gap: 10px;
+      padding: 14px 14px 32px;
+      background: linear-gradient(
+        to top,
+        rgba(3, 8, 24, 0.97) 0%,
+        rgba(3, 8, 24, 0.85) 55%,
+        transparent 100%
+      );
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .btn-ai {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 52px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 50px;
+      color: rgba(255,255,255,0.88);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: -0.2px;
+    }
+
+    .btn-create {
+      flex: 1.6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      height: 52px;
+      background: rgba(255,255,255,0.96);
+      border: none;
+      border-radius: 50px;
+      color: #050c20;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: -0.2px;
+    }
+
+    svg { display: block; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<!-- ── Fixed blurred background ── -->
+<div class="bg"></div>
+
+<!-- ── Page / phone shell ── -->
+<div class="shell">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <!-- Signal bars -->
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+        <rect x="0"   y="8"   width="3.2" height="4"   rx="0.8" fill="rgba(255,255,255,0.85)"/>
+        <rect x="4.7" y="5.5" width="3.2" height="6.5" rx="0.8" fill="rgba(255,255,255,0.85)"/>
+        <rect x="9.4" y="3"   width="3.2" height="9"   rx="0.8" fill="rgba(255,255,255,0.85)"/>
+        <rect x="14"  y="0"   width="3.2" height="12"  rx="0.8" fill="rgba(255,255,255,0.85)"/>
+      </svg>
+      <!-- Wi-Fi -->
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <circle cx="8" cy="10.8" r="1.3" fill="rgba(255,255,255,0.85)"/>
+        <path d="M4.5 7.2a5 5 0 017 0"   stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M1.5 4.1a10 10 0 0113 0" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <!-- Battery -->
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+        <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+        <rect x="1.5" y="1.5" width="16" height="9"  rx="2.5" fill="rgba(255,255,255,0.85)"/>
+        <path d="M23 4.5v3a1.5 1.5 0 000-3z" fill="rgba(255,255,255,0.4)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ─── Poster hero ─── -->
+  <div class="poster-wrap">
+    <div class="poster">
+      <!-- visual decorations -->
+      <div class="poster-rays"></div>
+      <div class="poster-ring"></div>
+      <div class="poster-ring-sm"></div>
+      <div class="poster-ring-xs"></div>
+
+      <!-- text content -->
+      <div class="poster-body">
+        <div class="poster-eyebrow">Live in Concert</div>
+        <div class="poster-band">NIRVANA</div>
+        <div class="poster-divider"></div>
+        <div class="poster-tour">Nevermind World Tour</div>
+        <div class="poster-venue">Madison Square Garden · New York</div>
+      </div>
+    </div>
+
+    <!-- Change poster button -->
+    <button class="change-poster-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      Change Event Poster
+    </button>
+  </div>
+
+  <!-- ─── Scrollable content ─── -->
+  <div class="content">
+
+    <!-- Customise Theme -->
+    <div class="theme-row">
+      <button class="theme-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round">
+          <line x1="4"  y1="21" x2="4"  y2="14"/><line x1="4"  y1="10" x2="4"  y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8"  x2="12" y2="3"/>
+          <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+          <line x1="1"  y1="14" x2="7"  y2="14"/>
+          <line x1="9"  y1="8"  x2="15" y2="8"/>
+          <line x1="17" y1="16" x2="23" y2="16"/>
+        </svg>
+        Customise Theme
+      </button>
+      <div class="shuffle-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 3 21 3 21 8"/>
+          <line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/>
+          <line x1="15" y1="15" x2="21" y2="21"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Event title -->
+    <h1 class="event-title">Nirvana: Nevermind<br>World Tour</h1>
+
+    <!-- Add Event Feature -->
+    <button class="add-feature-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5"  y1="12" x2="19" y2="12"/>
+      </svg>
+      Add Event Feature
+    </button>
+
+    <!-- Timezone -->
+    <div style="margin-bottom: 12px;">
+      <div class="tz-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        GMT −05:00 &nbsp;New York
+      </div>
+    </div>
+
+    <!-- Date card — matches screenshot layout exactly:
+         [ Start col ] | [ End col ] [ toggle ] -->
+    <div class="date-card">
+      <div class="date-row">
+        <div class="date-col">
+          <div class="date-col-label">Start</div>
+          <div class="date-col-value">
+            <span class="date-col-time">8:00 pm</span>
+            <span class="date-col-day">3 Dec</span>
+          </div>
+        </div>
+        <div class="date-sep"></div>
+        <div class="date-col">
+          <div class="date-col-label">End</div>
+          <div class="date-col-value">
+            <span class="date-col-time">11:30 pm</span>
+            <span class="date-col-day">4 Dec</span>
+          </div>
+        </div>
+        <div class="date-toggle-wrap">
+          <div class="toggle"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- In Person / Virtual -->
+    <div class="type-row">
+      <button class="type-btn active">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        In Person Event
+      </button>
+      <button class="type-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8"  y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        Virtual Event
+      </button>
+    </div>
+
+    <!-- Settings rows -->
+    <div class="rows-card">
+
+      <!-- Location -->
+      <div class="section-row">
+        <div class="row-icon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.62)" stroke-width="2" stroke-linecap="round">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <span class="row-label">Add Event Location</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="2" stroke-linecap="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+
+      <!-- Description -->
+      <div class="section-row">
+        <div class="row-icon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.62)" stroke-width="2" stroke-linecap="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <span class="row-label">Event Description</span>
+        <span class="pill-tag">Add</span>
+      </div>
+
+      <!-- Approval Required -->
+      <div class="section-row">
+        <div class="row-icon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.62)" stroke-width="2" stroke-linecap="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="row-label">Approval Required</span>
+        <div class="toggle"></div>
+      </div>
+
+      <!-- Custom Questions -->
+      <div class="section-row">
+        <div class="row-icon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.62)" stroke-width="2" stroke-linecap="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+        </div>
+        <span class="row-label">Custom Questions</span>
+        <span class="pill-tag">Add</span>
+      </div>
+
+      <!-- Capacity -->
+      <div class="section-row">
+        <div class="row-icon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.62)" stroke-width="2" stroke-linecap="round">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+            <path d="M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+        </div>
+        <span class="row-label">Capacity</span>
+        <div class="capacity-val">
+          Unlimited
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+      </div>
+
+    </div><!-- /rows-card -->
+
+    <!-- Additional Features -->
+    <div class="additional-card">
+      <div class="additional-header">
+        <div>
+          <div class="additional-title">Additional Features</div>
+          <div class="additional-sub">Team Registration, QR tickets and more</div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /shell -->
+
+<!-- ── Fixed bottom bar ── -->
+<div class="bottom-bar">
+  <button class="btn-ai">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="rgba(255,255,255,0.85)">
+      <path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/>
+    </svg>
+    Prompt AI
+  </button>
+  <button class="btn-create">
+    Create Event
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"/>
+      <polyline points="12 5 19 12 12 19"/>
+    </svg>
+  </button>
+</div>
+
+</body>
+</html>
